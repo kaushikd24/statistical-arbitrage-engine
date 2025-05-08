@@ -1,0 +1,23 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual env
+.venv/
+env/
+venv/
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# Data files
+data/
+*.csv
+
+# VSCode/IDE
+.vscode/
+.idea/
+
+# MacOS garbage
+.DS_Store
