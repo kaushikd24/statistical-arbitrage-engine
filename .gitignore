@@ -15,6 +15,12 @@ venv/
 data/
 *.csv
 
+# Ignore everything in data
+data/*
+# EXCEPT this one file
+!data/final_pairs.csv
+
+
 # VSCode/IDE
 .vscode/
 .idea/
