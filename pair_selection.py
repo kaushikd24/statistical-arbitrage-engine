@@ -1,116 +1,87 @@
+import os
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
-import matplotlib.pyplot as plt
-import seaborn as sns
 
-#okay, so we have imported all the necessary libraries,
-#now we can start with the pair selection process
-#importing cointegration test from statsmodels
 from statsmodels.tsa.stattools import coint
 
-#now, we need to load the data for the pair selection process
-#we generated data from data_collection.py file
-#the data is stored in the data folder
+dir = os.listdir("data")
 
-#loading the data
-import os
-os.listdir('data')
+#create a list of stock names, which are the names of the tickers in the data folder
+stock_names = [filename.replace(".csv", "") for filename in dir if filename.endswith(".csv") and "final_pairs" not in filename]
 
-
-dir = os.listdir('data')
-
-#create a list of stock names
-stock_names = []
-
-for i in dir:
-    if i.endswith(".csv") and "final_pairs" not in i:
-        stock_names.append(i.replace(".csv", ""))
-
-    
-#create a dictionary to store the data for each stock
+#create a dictionary to store stock data, and reference it by stock name
 stock_data = {}
-for i in stock_names:
-    stock_data[i]=pd.read_csv(f'data/{i}.csv')
+
+for ticker in stock_names:
+    try:
+        df = pd.read_csv(f"data/{ticker}.csv")  # Fixed path from "date" to "data"
+        
+        # Reset index to access rows properly
+        df = df.reset_index()
+        
+        # Keep only rows that have valid dates (skip header rows)
+        df = df[df['index'] > 1]
+        
+        # Select only the price=date and close cols
+        temp = df[['Price', 'Close']]
+        
+        temp = temp.dropna()
+        
+        temp["Price"] = pd.to_datetime(temp["Price"])
+        
+        temp = temp.set_index("Price").sort_index()
+        stock_data[ticker] = temp["Close"].astype(float).rename(ticker)
+        
+    except Exception as e:
+        print(f"Error loading {ticker}: {e}")
+
+#LODHA.NS has data from 2021, so we would remove it from stock_data
+if "LODHA.NS" in stock_data:
+    del stock_data["LODHA.NS"]
+    stock_names.remove("LODHA.NS")
     
-#create an empty list to store DataFrames for each stock
-all_stocks=[]
+#combining all series into a single DataFrame
+combined_df = pd.concat(stock_data.values(), axis=1, join="inner")
 
-#Loop through each stock
-for ticker, df in stock_data.items():
-    #get a copy of the DataFrame with just the 'Close' column
-    temp = df.copy()
-    
-    #reset index to access rows properly
-    temp = temp.reset_index()
-    
-    #keep only rows that have valid dates (skip header rows)
-    temp = temp[temp['index']>1]
-    
-    #select only the price=date and close cols
-    temp = temp [['Price', 'Close']]
-    
-    #add ticker column
-    temp['Ticker'] = ticker
-    
-    all_stocks.append(temp)
-    
-#Combine all individual DataFramers
-cleaned_data = pd.concat(all_stocks, ignore_index=True)
+#set column names using ticker list 
+combined_df.columns = stock_data.keys()  # Fixed comma to period
 
-#rename columns
-cleaned_data.columns = ['Date', 'Close_Price', 'Ticker']
+#sort by date 
+combined_df = combined_df.sort_index()
 
-#preview
-combined_df =cleaned_data.pivot(index="Date", columns='Ticker', values="Close_Price")
-combined_df.index = pd.to_datetime(combined_df.index)
-combined_df.sort_index(inplace=True)
+results = []
 
-#drop null val
-combined_df.dropna(inplace=True)
+tickers = list(combined_df.columns)
 
-#normalise the data
-combined_df = combined_df.apply(pd.to_numeric, errors='coerce')
+for i in range(len(tickers)):
+    for j in range(i+1, len(tickers)):
+        stock_a = tickers[i]
+        stock_b = tickers[j]
+        
+        series_a = combined_df[stock_a]
+        series_b = combined_df[stock_b]
+        
+        #run the engle-granger cointegration test
+        try:
+            _, p_value, _ = coint(series_a, series_b)
+            results.append((stock_a, stock_b, p_value))
+            
+        except Exception as e:
+            print(f"Skipped {stock_a} and {stock_b}: {e}")
+            
 
-normalised_df = combined_df
-normalised_df.replace([float('inf'), float('-inf')], pd.NA, inplace=True)
-normalised_df.dropna(inplace=True)
+#convert to a DataFrame
+pval_df = pd.DataFrame(results, columns=["Stock A", "Stock B", "p-value"])
 
-from statsmodels.tsa.stattools import coint
-
-#loop over all the stocks and store the p-values in a dict
-p_value_dict={}
-for i in stock_names:
-    for y in stock_names:
-        score, pvalue, _ = coint(normalised_df[i], normalised_df[y])
-        p_value_dict[f"{i} and {y}"] = pvalue
-
-#convert the dict to a DataFrame
-pval_df = pd.DataFrame(list(p_value_dict.items()), columns=["Pair", "p-value"])
-
-#sort it
-pval_df = pval_df.sort_values(by="p-value").reset_index(drop=True)
-
-pval_df[["Stock A", "Stock B"]] = pval_df["Pair"].str.split(" and ", expand=True)
-pval_df = pval_df[["Stock A", "Stock B", "p-value"]]
-
-
-pval_df = pval_df[pval_df["Stock A"] != pval_df["Stock B"]]
-
-pval_df = pval_df[["Stock A", "Stock B", "p-value"]].sort_values(by="p-value").reset_index(drop=True)
-
+#filter based on p-value threshold, in our case it is 0.05
 final_df = pval_df[pval_df["p-value"] < 0.05]
 
+#sort by p-value
+final_df = final_df.sort_values(by="p-value")
+
+#saving the final pairs into a csv file 
 final_df.to_csv("data/final_pairs.csv", index=False)
 
-
-
-
-
-
-
+        
     
-    
-
-    
-
