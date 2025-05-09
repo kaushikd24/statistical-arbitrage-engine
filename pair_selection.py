@@ -7,15 +7,18 @@ from statsmodels.tsa.stattools import coint
 
 dir = os.listdir("data")
 
-#create a list of stock names, which are the names of the tickers in the data folder
-stock_names = [filename.replace(".csv", "") for filename in dir if filename.endswith(".csv") and "final_pairs" not in filename]
+# Create a list of stock names, exclude output files
+stock_names = [filename.replace(".csv", "") for filename in dir 
+               if filename.endswith(".csv") 
+               and "final_pairs" not in filename
+               and "combined_df" not in filename]
 
 #create a dictionary to store stock data, and reference it by stock name
 stock_data = {}
 
 for ticker in stock_names:
     try:
-        df = pd.read_csv(f"data/{ticker}.csv")  # Fixed path from "date" to "data"
+        df = pd.read_csv(f"data/{ticker}.csv")
         
         # Reset index to access rows properly
         df = df.reset_index()
@@ -45,10 +48,13 @@ if "LODHA.NS" in stock_data:
 combined_df = pd.concat(stock_data.values(), axis=1, join="inner")
 
 #set column names using ticker list 
-combined_df.columns = stock_data.keys()  # Fixed comma to period
+combined_df.columns = stock_data.keys()
 
 #sort by date 
 combined_df = combined_df.sort_index()
+
+# Save combined_df to CSV
+combined_df.to_csv("data/combined_df.csv")
 
 results = []
 
