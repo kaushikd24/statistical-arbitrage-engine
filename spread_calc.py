@@ -35,7 +35,7 @@ for x,y,_, in final_df.itertuples():
 spread_df = pd.concat(spread_dict.values(), axis=1)
 
 #saving the spread_df to a csv file
-spread_df.to_csv("data/spread_df.csv")
+spread_df.to_csv("data/spread.csv")
 
 
 
