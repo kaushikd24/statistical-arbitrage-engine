@@ -68,3 +68,6 @@ signal = pd.DataFrame(signals, index=z_scores.index)
 
 #creating a csv file for the signals
 signal.to_csv('data/signals.csv')
+
+#creating a csv file for the z scores
+z_scores.to_csv('data/z_scores.csv')
