@@ -1,34 +1,52 @@
-def fixed_percent_sizer(nav, risk_pct, stop_loss_pct, price):
-    """
-    Position sizing based on fixed % of NAV and stop-loss buffer.
+"""
+Position sizing functions for risk management
+"""
 
+def fixed_percent_sizer(capital: float, price: float, risk_pct: float = 0.01) -> int:
+    """
+    Calculate position size based on fixed percentage of capital.
+    
     Args:
-        nav (float): current net asset value (₹)
-        risk_pct (float): risk per trade, e.g. 0.01 = 1%
-        stop_loss_pct (float): expected worst-case move, e.g. 0.02 = 2%
-        price (float): current price of the leg you're sizing
-
+        capital (float): Total capital available
+        price (float): Current price of the asset
+        risk_pct (float): Percentage of capital to risk (0.01 = 1%)
+        
     Returns:
-        int: number of units to trade
+        int: Number of shares to trade
     """
-    risk_amount = nav * risk_pct
-    position_value = risk_amount / stop_loss_pct
-    size = position_value / price
-    return int(size)
+    # Calculate position size based on risk percentage
+    position_value = capital * risk_pct
+    
+    # Calculate number of shares
+    if price > 0:
+        shares = int(position_value / price)
+    else:
+        shares = 0
+        
+    return shares
 
-
-def volatility_sizer(vol, risk_amount):
+def volatility_sizer(capital: float, price: float, volatility: float, risk_pct: float = 0.01) -> int:
     """
-    Position sizing based on volatility of spread.
-
+    Calculate position size based on volatility.
+    
     Args:
-        vol (float): current spread volatility (1*(sigma))
-        risk_amount (float): capital you're willing to risk
-
+        capital (float): Total capital available
+        price (float): Current price of the asset
+        volatility (float): Volatility measure (e.g., standard deviation)
+        risk_pct (float): Percentage of capital to risk (0.01 = 1%)
+        
     Returns:
-        int: number of spread units to trade
+        int: Number of shares to trade
     """
-    if vol == 0:
-        return 0
-    size = risk_amount / vol
-    return int(size)
+    # Calculate risk amount
+    risk_amount = capital * risk_pct
+    
+    # Scale position size inversely with volatility
+    if volatility > 0 and price > 0:
+        # Lower volatility = larger position size, higher volatility = smaller position size
+        position_value = risk_amount / volatility
+        shares = int(position_value / price)
+    else:
+        shares = 0
+        
+    return shares

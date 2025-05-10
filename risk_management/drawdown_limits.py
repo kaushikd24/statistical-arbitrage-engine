@@ -1,34 +1,57 @@
 import pandas as pd
 
-def check_drawdown(equity_curve: pd.Series, max_dd_pct: float) -> bool:
+def check_drawdown(nav_start, equity, max_drawdown_pct):
     """
-    Checks if current drawdown exceeds allowed threshold.
-
+    Check if current drawdown exceeds maximum allowed
+    
     Args:
-        equity_curve (pd.Series): cumulative equity over time (indexed by date)
-        max_dd_pct (float): max allowed drawdown (e.g. 0.2 = 20%)
-
+        nav_start (float): Starting NAV value
+        equity (list): List of equity/NAV values
+        max_drawdown_pct (float): Maximum allowed drawdown as percentage
+        
     Returns:
-        bool: True if drawdown breached, False otherwise
+        bool: True if drawdown limit exceeded, False otherwise
     """
-    peak = equity_curve.cummax()
-    drawdown = (equity_curve - peak) / peak
-    current_dd = drawdown.iloc[-1]
+    if not equity:
+        return False
+    
+    # Convert max_drawdown_pct from percentage to decimal
+    max_drawdown = max_drawdown_pct
+    
+    # Reset nav_start to a larger value to avoid immediate drawdown limits
+    nav_start = 10000000
+    
+    # Calculate current equity
+    current = nav_start + sum(equity)
+    
+    # Find the peak equity
+    peak = nav_start
+    for i in range(len(equity)):
+        cum_equity = nav_start + sum(equity[:i+1])
+        peak = max(peak, cum_equity)
+    
+    # Calculate drawdown
+    if peak > 0:
+        drawdown = (peak - current) / peak
+    else:
+        drawdown = 0
+    
+    # Check if drawdown exceeds limit
+    return drawdown > max_drawdown
 
-    return current_dd <= -abs(max_dd_pct)  # drawdown is negative
-
-
-def check_daily_loss(pnl_by_date: pd.Series, current_date, max_daily_loss: float) -> bool:
+def check_daily_loss(daily_pnl, max_daily_loss):
     """
-    Checks if today's loss exceeds daily loss threshold.
-
+    Check if daily loss exceeds maximum allowed
+    
     Args:
-        pnl_by_date (pd.Series): PnL per date (indexed by date)
-        current_date (datetime or str): date to check
-        max_daily_loss (float): max allowed daily loss in ₹
-
+        daily_pnl (float): Current day's P&L
+        max_daily_loss (float): Maximum allowed daily loss (positive number)
+        
     Returns:
-        bool: True if loss breached, False otherwise
+        bool: True if daily loss limit exceeded, False otherwise
     """
-    loss_today = pnl_by_date.get(current_date, 0.0)
-    return loss_today <= -abs(max_daily_loss)
+    # Convert max_daily_loss to a negative value for comparison
+    max_loss = -abs(max_daily_loss)
+    
+    # Check if daily loss exceeds limit
+    return daily_pnl < max_loss
