@@ -1,0 +1,102 @@
+STATISTICAL ARBITRAGE BACKTEST RESULTS SUMMARY
+=============================================
+
+Total Tests Run: 5
+Unique Strategy Configurations: 3
+
+Best CAGR: 53.68% (Strategy: Moderate_Base)
+Best Sharpe Ratio: 27.73 (Strategy: Moderate_Base)
+
+Strategy Performance:
+----------------------------------------------------------------------------------------------------
+Strategy             Trades   Win Rate   Total PnL            CAGR       Sharpe     Profit Factor  
+----------------------------------------------------------------------------------------------------
+Conservative_Base    1        0.00%       ₹-277,159.33         -4.56%       -0.00       0.00            
+Conservative_Higher_ML 21       61.90%       ₹1,988,552.56         17.04%       0.00       0.58            
+Conservative_Base    18       50.00%       ₹228,830.96         3.01%       0.04       1.43            
+Conservative_Higher_ML 892      42.26%       ₹1,586,718.99         14.64%       20.18       1.14            
+Moderate_Base        967      41.05%       ₹18,877,190.47         53.68%       27.73       1.45            
+
+----------------------------------------------------------------------------------------------------
+
+STRATEGY DETAILS:
+
+STRATEGY: Conservative_Base
+--------------------------------------------------
+Performance Metrics:
+  - CAGR: -4.56%
+  - Sharpe Ratio: -0.00
+  - Total PnL: ₹-277,159.33
+  - Win Rate: 0.00%
+  - Profit Factor: 0.00
+  - Number of Trades: 1
+  - Max Drawdown: -36377.41%
+
+Strategy Parameters:
+  - ML Threshold: 0.6
+  - Leverage: 1.0
+  - Risk Management Parameters:
+    * max_drawdown_pct: 0.15
+    * max_daily_loss: 5000.0
+    * max_open_trades: 5
+    * risk_pct: 0.01
+    * stop_loss_pct: 0.02
+    * sizer: fixed_pct
+    * stop_z: 3.0
+    * max_hold_days: 10
+
+
+STRATEGY: Conservative_Higher_ML
+--------------------------------------------------
+Performance Metrics:
+  - CAGR: 17.04%
+  - Sharpe Ratio: 0.00
+  - Total PnL: ₹1,988,552.56
+  - Win Rate: 61.90%
+  - Profit Factor: 0.58
+  - Number of Trades: 21
+  - Max Drawdown: 0.00%
+
+Strategy Parameters:
+  - ML Threshold: 0.5
+  - Leverage: 1.0
+  - Risk Management Parameters:
+    * max_drawdown_pct: 0.15
+    * max_daily_loss: 5000.0
+    * max_open_trades: 5
+    * risk_pct: 0.01
+    * stop_loss_pct: 0.02
+    * sizer: fixed_pct
+    * stop_z: 3.0
+    * max_hold_days: 10
+
+
+STRATEGY: Moderate_Base
+--------------------------------------------------
+Performance Metrics:
+  - CAGR: 53.68%
+  - Sharpe Ratio: 27.73
+  - Total PnL: ₹18,877,190.47
+  - Win Rate: 41.05%
+  - Profit Factor: 1.45
+  - Number of Trades: 967
+  - Max Drawdown: -1.94%
+
+Strategy Parameters:
+  - ML Threshold: 0.5
+  - Leverage: 1.5
+  - Risk Management Parameters:
+    * max_drawdown_pct: 0.2
+    * max_daily_loss: 10000.0
+    * max_open_trades: 8
+    * risk_pct: 0.02
+    * stop_loss_pct: 0.03
+    * sizer: fixed_pct
+    * stop_z: 4.0
+    * max_hold_days: 15
+
+
+
+Images generated:
+- results_summary/top_metrics_comparison.png - Bar charts of top configurations by metric
+- results_summary/equity_curves_comparison.png - Equity curves for all strategies
