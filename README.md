@@ -1,9 +1,4 @@
-Working on a Statistical Arbitrage Engine:
 
-The structure of the algorithm is as follows:
-1. Data Collection
-2. Pair Selection
-3. Spread Calculation
-4. Signal Generation
-5. Backtesting and Stress Testing
-6. Risk Management
+![greatoceanroad](https://github.com/user-attachments/assets/a4eefd6a-696e-478c-8dbb-55ced5664a26)
+
+**Overview: Pairs Trading using Statistical Arbitrage**
